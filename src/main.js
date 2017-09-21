@@ -17,12 +17,12 @@ module.exports.loop = function () {
         console.log('Spawning new harvester: ' + newName);
     }
     var builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder');
-    if(builders.length < 4) {
+    if(builders.length < harvesters.length * 0.5) {
         var newName = Game.spawns['Spawn1'].createCreep([WORK,CARRY,MOVE], undefined, {role: 'builder'});
         console.log('Spawning new builder: ' + newName);
     }
     var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader');
-    if(upgraders.length < 6) {
+    if(upgraders.length < harvesters.length * 0.75) {
         var newName = Game.spawns['Spawn1'].createCreep([WORK,CARRY,MOVE], undefined, {role: 'upgrader'});
         console.log('Spawning new upgrader: ' + newName);
     }
