@@ -9,10 +9,10 @@ let roomInit = {
         // Exits Data
         let exitNames = Game.map.describeExits(currentRoom.name);
         let sides = {
-            top: [1, 1, 0, 48, 0],
-            right: [3, 49, 1, 49, 48],
-            bottom: [5, 1, 49, 48, 49],
-            left: [7, 0, 1, 0, 48]
+            top: [1, 0, 2, 0, 47],
+            right: [3, 2, 49, 47, 49],
+            bottom: [5, 49, 2, 49, 47],
+            left: [7, 2, 0, 47, 0]
         };
         let exits = {top: {}, right: {}, bottom: {}, left: {}};
         for (let side in sides) {
@@ -21,6 +21,7 @@ let roomInit = {
                 function (tile) {
                     return tile.terrain !== 'wall';
                 });
+
             for (let tile in terrainData) {
                 delete terrainData[tile]['type'];
                 delete terrainData[tile]['terrain'];
@@ -64,6 +65,8 @@ let roomInit = {
                     y: structuresData[structure].y,
                     level: structuresData[structure].structure.level
                 };
+            } else if (structuresData[structure].structure.structureType === 'spawn') {
+                currentRoom.memory.spawns = [{x: structuresData[structure].x, y: structuresData[structure].y}];
             }
         }
         currentRoom.memory.init = true
