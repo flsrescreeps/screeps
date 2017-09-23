@@ -1,39 +1,50 @@
+let format = require('format');
+
+const CREEPS = {
+    miners: {max: 0, count: 0},
+    movers: {max: 0, count: 0},
+    flex: {max: 0, count: 0}
+};
+
 let roomInit = {
 
     run: function (currentRoom) {
         if (currentRoom.memory.init === true) {
             return
         }
-        console.log('room.init: ' + currentRoom.name);
+        format.log(`room.init: ${currentRoom.name}`, 1);
 
         // Exits Data
         let exitNames = Game.map.describeExits(currentRoom.name);
         let sides = {
-            top: [1, 0, 2, 0, 47],
-            right: [3, 2, 49, 47, 49],
-            bottom: [5, 49, 2, 49, 47],
-            left: [7, 2, 0, 47, 0]
+            top: [1, 0, 0, 0, 49],
+            right: [3, 0, 49, 49, 49],
+            bottom: [5, 49, 0, 49, 49],
+            left: [7, 0, 0, 49, 0]
         };
-        let exits = {top: {}, right: {}, bottom: {}, left: {}};
-        for (let side in sides) {
-            let terrainData = _.filter(currentRoom.lookForAtArea(LOOK_TERRAIN,
-                sides[side][1], sides[side][2], sides[side][3], sides[side][4], true),
-                function (tile) {
-                    return tile.terrain !== 'wall';
-                });
-
-            for (let tile in terrainData) {
-                delete terrainData[tile]['type'];
-                delete terrainData[tile]['terrain'];
+        if (exitNames) {
+            let exits = {top: {}, right: {}, bottom: {}, left: {}};
+            for (let side in sides) {
+                let terrainData = _.filter(currentRoom.lookForAtArea(LOOK_TERRAIN,
+                    sides[side][1], sides[side][2], sides[side][3], sides[side][4], true),
+                    function (tile) {
+                        return tile.terrain !== 'wall';
+                    });
+                for (let tile in terrainData) {
+                    delete terrainData[tile]['type'];
+                    delete terrainData[tile]['terrain'];
+                }
+                if (exitNames[sides[side][0]]) {
+                    exits[side] = {name: exitNames[sides[side][0]], tiles: terrainData};
+                }
             }
-            exits[side] = {name: exitNames[sides[side][0]], tiles: terrainData};
+            currentRoom.memory.exits = exits;
         }
-        currentRoom.memory.exits = exits;
 
-        // Sources Data (+ creeps.miners)
+        // Sources Data (+ creeps.miners and creeps.movers)
         let sourcesData = currentRoom.lookForAtArea(LOOK_SOURCES, 0, 0, 49, 49, true);
         let sources = [];
-        let creeps = {miners: {max: 0, count: 0}};
+        let creeps = CREEPS;
         for (let source in sourcesData) {
             let terrainData = _.filter(currentRoom.lookForAtArea(LOOK_TERRAIN,
                 sourcesData[source].y - 1, sourcesData[source].x - 1,
@@ -53,6 +64,7 @@ let roomInit = {
             });
             creeps['miners']['max'] += terrainData.length
         }
+        creeps.movers.max = sources.length;
         currentRoom.memory.creeps = creeps;
         currentRoom.memory.sources = sources;
 
@@ -63,10 +75,8 @@ let roomInit = {
                 currentRoom.memory.controller = {
                     x: structuresData[structure].x,
                     y: structuresData[structure].y,
-                    level: structuresData[structure].structure.level
+                    // level: structuresData[structure].structure.level
                 };
-            } else if (structuresData[structure].structure.structureType === 'spawn') {
-                currentRoom.memory.spawns = [{x: structuresData[structure].x, y: structuresData[structure].y}];
             }
         }
         currentRoom.memory.init = true
