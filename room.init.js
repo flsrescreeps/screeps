@@ -41,7 +41,7 @@ let roomInit = {
             currentRoom.memory.exits = exits;
         }
 
-        // Sources Data (+creeps)
+        // Sources Data (+ creeps.miners and creeps.movers)
         let sourcesData = currentRoom.lookForAtArea(LOOK_SOURCES, 0, 0, 49, 49, true);
         let sources = [];
         let creeps = CREEPS;
@@ -75,6 +75,7 @@ let roomInit = {
                 currentRoom.memory.controller = {
                     x: structuresData[structure].x,
                     y: structuresData[structure].y,
+                    // level: structuresData[structure].structure.level
                 };
             }
         }
